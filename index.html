@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salary Calculator</title>
+  <meta name="description" content="Working hours, freelancer rates, payslip and invoice tools — all offline in the browser." />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Salary Calculator</h1>
+    <p>Calculate working hours, hourly/daily cost, payslips, and generate invoices</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="hours">Working Hours</button>
+    <button class="tab" data-tab="cost">Hourly / Daily Cost</button>
+    <button class="tab" data-tab="settings">Settings</button>
+  </div>
+
+  <!-- ============================================================
+       Working Hours Panel (+ Payslip & Invoice)
+       ============================================================ -->
+  <div class="panel active" id="panel-hours">
+    <div class="grid">
+      <div class="card">
+        <h2>Calculate Hours</h2>
+
+        <div class="form-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate" />
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate" />
+        </div>
+
+        <div class="form-group">
+          <label>Weekend Days</label>
+          <div class="weekday-picker" id="weekendPicker">
+            <div class="day" data-day="0">Sun</div>
+            <div class="day" data-day="1">Mon</div>
+            <div class="day" data-day="2">Tue</div>
+            <div class="day" data-day="3">Wed</div>
+            <div class="day" data-day="4">Thu</div>
+            <div class="day" data-day="5">Fri</div>
+            <div class="day" data-day="6">Sat</div>
+          </div>
+          <div class="hint">Tap to select weekend days (saved automatically)</div>
+        </div>
+
+        <div class="form-group">
+          <label for="hoursPerDay">Hours per Working Day</label>
+          <input type="number" id="hoursPerDay" min="1" max="24" step="0.5" />
+        </div>
+
+        <button class="primary" id="calcHoursBtn">Calculate</button>
+
+        <div class="result" id="hoursResult" style="display:none">
+          <div class="result-row">
+            <span class="label">Total days (incl. weekends)</span>
+            <span class="value" id="totalDays">—</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Weekend days</span>
+            <span class="value" id="weekendDays">—</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Working days</span>
+            <span class="value" id="workingDays">—</span>
+          </div>
+          <div class="result-row highlight">
+            <span class="label">Total working hours</span>
+            <span class="value" id="totalHours">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="history-header">
+          <h3 style="font-size:1.15rem;display:flex;align-items:center;gap:8px">
+            <span style="width:4px;height:20px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:2px;display:inline-block"></span>
+            Previous Calculations
+          </h3>
+          <button class="btn-text" id="clearHoursHistory">Clear All</button>
+        </div>
+        <div class="history-list" id="hoursHistory"></div>
+      </div>
+    </div>
+
+    <!-- Payslip calculator -->
+    <div class="grid" style="margin-top:20px">
+      <div class="card">
+        <h2>Payslip Calculator</h2>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:14px">
+          Calculate pay from monthly salary and recorded hours.
+        </p>
+
+        <div class="form-group">
+          <label for="payslipSalary">Monthly Salary</label>
+          <input type="number" id="payslipSalary" min="0" step="0.01" placeholder="e.g. 15000" />
+        </div>
+
+        <div class="form-group">
+          <label for="payslipCurrency">Currency</label>
+          <select id="payslipCurrency">
+            <option value="USD">USD ($)</option>
+            <option value="SAR">SAR (﷼)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="AED">AED (د.إ)</option>
+            <option value="EGP">EGP (E£)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="payslipRecordedHours">Recorded Hours</label>
+          <input type="text" id="payslipRecordedHours" placeholder="e.g. 42:30 or 42.5" />
+          <div class="hint">Accepts <code>hh:mm</code> (42:30) or decimal (42.5)</div>
+        </div>
+
+        <div class="form-group">
+          <label for="payslipHoursPerDay">Hours per Working Day</label>
+          <input type="number" id="payslipHoursPerDay" min="1" max="24" step="0.5" />
+        </div>
+
+        <div class="form-group">
+          <label for="payslipHoursPerWeek">Working Hours per Week</label>
+          <input type="number" id="payslipHoursPerWeek" min="1" max="168" step="0.5" />
+        </div>
+
+        <button class="primary" id="calcPayslipBtn">Calculate Payslip</button>
+        <button class="secondary" id="openInvoiceBtn">Generate Invoice</button>
+
+        <div class="result" id="payslipResult" style="display:none">
+          <div class="result-row">
+            <span class="label">Hourly rate</span>
+            <span class="value" id="payslipHourlyRate">—</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Recorded hours</span>
+            <span class="value" id="payslipHoursDecimal">—</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Expected monthly hours</span>
+            <span class="value" id="payslipExpectedHours">—</span>
+          </div>
+          <div class="result-row highlight">
+            <span class="label">Total pay</span>
+            <span class="value" id="payslipTotalPay">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="history-header">
+          <h3 style="font-size:1.15rem;display:flex;align-items:center;gap:8px">
+            <span style="width:4px;height:20px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:2px;display:inline-block"></span>
+            Previous Payslips
+          </h3>
+          <button class="btn-text" id="clearPayslipHistory">Clear All</button>
+        </div>
+        <div class="history-list" id="payslipHistory"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Hourly / Daily Cost Panel
+       ============================================================ -->
+  <div class="panel" id="panel-cost">
+    <div class="grid">
+      <div class="card">
+        <h2>Calculate Cost</h2>
+
+        <div class="form-group">
+          <label for="monthlySalary">Monthly Salary</label>
+          <input type="number" id="monthlySalary" min="0" step="0.01" placeholder="e.g. 15000" />
+        </div>
+
+        <div class="form-group">
+          <label for="currency">Currency</label>
+          <select id="currency">
+            <option value="USD">USD ($)</option>
+            <option value="SAR">SAR (﷼)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="AED">AED (د.إ)</option>
+            <option value="EGP">EGP (E£)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="costHoursPerDay">Hours per Working Day</label>
+          <input type="number" id="costHoursPerDay" min="1" max="24" step="0.5" />
+        </div>
+
+        <div class="form-group">
+          <label for="workingHoursPerWeek">Working Hours per Week</label>
+          <input type="number" id="workingHoursPerWeek" min="1" max="168" step="0.5" />
+        </div>
+
+        <button class="primary" id="calcCostBtn">Calculate</button>
+
+        <div class="result" id="costResult" style="display:none">
+          <div class="result-row">
+            <span class="label">Working days / month (avg)</span>
+            <span class="value" id="daysPerMonth">—</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Working hours / month</span>
+            <span class="value" id="hoursPerMonth">—</span>
+          </div>
+          <div class="result-row highlight">
+            <span class="label">Daily cost</span>
+            <span class="value" id="dailyCost">—</span>
+          </div>
+          <div class="result-row highlight">
+            <span class="label">Hourly cost</span>
+            <span class="value" id="hourlyCost">—</span>
+          </div>
+
+          <div class="multipliers" id="costMultipliers">
+            <div class="multipliers-title">Freelancer Rate Multipliers</div>
+            <table class="multipliers-table">
+              <thead>
+                <tr>
+                  <th>Multiplier</th>
+                  <th>Hourly</th>
+                  <th>Daily</th>
+                </tr>
+              </thead>
+              <tbody id="multipliersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="history-header">
+          <h3 style="font-size:1.15rem;display:flex;align-items:center;gap:8px">
+            <span style="width:4px;height:20px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:2px;display:inline-block"></span>
+            Previous Calculations
+          </h3>
+          <button class="btn-text" id="clearCostHistory">Clear All</button>
+        </div>
+        <div class="history-list" id="costHistory"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Settings Panel
+       ============================================================ -->
+  <div class="panel" id="panel-settings">
+    <div class="card settings-card">
+      <h2>Preferences</h2>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:18px">
+        Set your defaults once. The calculators and invoices will prefill these values automatically.
+      </p>
+
+      <div class="section-title">Work Schedule</div>
+
+      <div class="form-group">
+        <label>Weekend Days</label>
+        <div class="weekday-picker" id="settingsWeekendPicker">
+          <div class="day" data-day="0">Sun</div>
+          <div class="day" data-day="1">Mon</div>
+          <div class="day" data-day="2">Tue</div>
+          <div class="day" data-day="3">Wed</div>
+          <div class="day" data-day="4">Thu</div>
+          <div class="day" data-day="5">Fri</div>
+          <div class="day" data-day="6">Sat</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="settingsHoursPerDay">Hours per Working Day</label>
+        <input type="number" id="settingsHoursPerDay" min="1" max="24" step="0.5" />
+      </div>
+
+      <div class="form-group">
+        <label for="settingsHoursPerWeek">Working Hours per Week</label>
+        <input type="number" id="settingsHoursPerWeek" min="1" max="168" step="0.5" />
+      </div>
+
+      <div class="section-title">Compensation</div>
+
+      <div class="form-group">
+        <label for="settingsMonthlySalary">Monthly Salary</label>
+        <input type="number" id="settingsMonthlySalary" min="0" step="0.01" placeholder="e.g. 15000" />
+      </div>
+
+      <div class="form-group">
+        <label for="settingsCurrency">Currency</label>
+        <select id="settingsCurrency">
+          <option value="USD">USD ($)</option>
+          <option value="SAR">SAR (﷼)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="AED">AED (د.إ)</option>
+          <option value="EGP">EGP (E£)</option>
+        </select>
+      </div>
+
+      <div class="section-title">Invoice Details</div>
+
+      <div class="form-group">
+        <label for="settingsEmployeeName">Your Name</label>
+        <input type="text" id="settingsEmployeeName" placeholder="e.g. Jane Doe" />
+      </div>
+
+      <div class="form-group">
+        <label for="settingsEmployeeAddress">Your Address</label>
+        <textarea id="settingsEmployeeAddress" rows="3" placeholder="Street, City, Country"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="settingsBankDetails">Bank Account Details</label>
+        <textarea id="settingsBankDetails" rows="4" placeholder="Bank name&#10;Account holder&#10;IBAN / Account number&#10;SWIFT / BIC"></textarea>
+      </div>
+
+      <p class="hint" style="text-align:center;margin-top:8px">Saved automatically</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     Invoice Modal
+     ============================================================ -->
+<div class="invoice-modal" id="invoiceModal" aria-hidden="true">
+  <div class="invoice-editor">
+    <div class="invoice-editor-header">
+      <h2>Invoice</h2>
+      <button class="close-btn" id="closeInvoiceModal" title="Close" aria-label="Close">×</button>
+    </div>
+
+    <div class="invoice-form">
+      <div class="form-group full">
+        <label for="invoiceCustomerSelect">Saved Customers</label>
+        <div class="customer-row">
+          <select id="invoiceCustomerSelect"></select>
+          <button type="button" id="saveCustomerBtn" class="btn-inline" title="Save current customer details">Save</button>
+          <button type="button" id="deleteCustomerBtn" class="btn-inline danger" title="Delete selected customer">Delete</button>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label for="invoiceCustomerName">Customer Name</label>
+        <input type="text" id="invoiceCustomerName" placeholder="Acme Corp." />
+      </div>
+      <div class="form-group full">
+        <label for="invoiceCustomerAddress">Customer Address</label>
+        <textarea id="invoiceCustomerAddress" rows="2" placeholder="Street, City, Country"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="invoiceServiceStart">Service Period Start</label>
+        <input type="date" id="invoiceServiceStart" />
+      </div>
+      <div class="form-group">
+        <label for="invoiceServiceEnd">Service Period End</label>
+        <input type="date" id="invoiceServiceEnd" />
+      </div>
+      <div class="form-group">
+        <label for="invoiceIssueDate">Issue Date</label>
+        <input type="date" id="invoiceIssueDate" />
+      </div>
+      <div class="form-group">
+        <label for="invoiceNumber">Invoice Number</label>
+        <input type="text" id="invoiceNumber" />
+      </div>
+    </div>
+
+    <div class="invoice-document" id="invoicePreview"></div>
+
+    <div class="invoice-actions">
+      <button class="secondary" id="closeInvoiceBtn">Close</button>
+      <button class="primary" id="printInvoiceBtn">Print / Save PDF</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
