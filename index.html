@@ -133,6 +133,24 @@
           <input type="number" id="payslipHoursPerWeek" min="1" max="168" step="0.5" />
         </div>
 
+        <div class="form-group">
+          <label for="payslipOvertimeMultiplier">
+            Overtime Multiplier
+            <span class="multiplier-value" id="payslipOvertimeMultiplierValue">1.00x</span>
+          </label>
+          <input type="range" id="payslipOvertimeMultiplier" class="multiplier-slider" min="0" max="3" step="0.05" value="1" />
+          <div class="hint">Applied to hours worked above expected</div>
+        </div>
+
+        <div class="form-group">
+          <label for="payslipBelowTimeMultiplier">
+            Below-Time Multiplier
+            <span class="multiplier-value" id="payslipBelowTimeMultiplierValue">1.00x</span>
+          </label>
+          <input type="range" id="payslipBelowTimeMultiplier" class="multiplier-slider" min="0" max="3" step="0.05" value="1" />
+          <div class="hint">Applied to recorded hours when below expected</div>
+        </div>
+
         <button class="primary" id="calcPayslipBtn">Calculate Payslip</button>
         <button class="secondary" id="openInvoiceBtn">Generate Invoice</button>
 

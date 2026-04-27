@@ -261,6 +261,10 @@ export function initPayslipCalculator({ getSettings, updateSettings }) {
     recordedHours: document.getElementById('payslipRecordedHours'),
     hoursPerDay: document.getElementById('payslipHoursPerDay'),
     hoursPerWeek: document.getElementById('payslipHoursPerWeek'),
+    overtimeMultiplier: document.getElementById('payslipOvertimeMultiplier'),
+    overtimeMultiplierValue: document.getElementById('payslipOvertimeMultiplierValue'),
+    belowTimeMultiplier: document.getElementById('payslipBelowTimeMultiplier'),
+    belowTimeMultiplierValue: document.getElementById('payslipBelowTimeMultiplierValue'),
     result: document.getElementById('payslipResult'),
     hourlyRate: document.getElementById('payslipHourlyRate'),
     hoursDecimal: document.getElementById('payslipHoursDecimal'),
@@ -269,6 +273,22 @@ export function initPayslipCalculator({ getSettings, updateSettings }) {
     historyList: document.getElementById('payslipHistory'),
     clearBtn: document.getElementById('clearPayslipHistory')
   };
+
+  function syncMultiplierUI(slider, valueEl) {
+    const v = Number(slider.value);
+    valueEl.textContent = `${v.toFixed(2)}x`;
+    const min = Number(slider.min) || 0;
+    const max = Number(slider.max) || 3;
+    const pct = ((v - min) / (max - min)) * 100;
+    slider.style.setProperty('--fill', `${pct}%`);
+  }
+  [
+    [el.overtimeMultiplier, el.overtimeMultiplierValue],
+    [el.belowTimeMultiplier, el.belowTimeMultiplierValue]
+  ].forEach(([slider, valueEl]) => {
+    syncMultiplierUI(slider, valueEl);
+    slider.addEventListener('input', () => syncMultiplierUI(slider, valueEl));
+  });
 
   // Exposed to the Invoice feature so it can read current payslip inputs.
   function computeFromInputs() {
@@ -290,11 +310,21 @@ export function initPayslipCalculator({ getSettings, updateSettings }) {
 
     const expectedHours = hoursPerWeek * WEEKS_PER_MONTH;
     const hourlyRate = salary / expectedHours;
-    const totalPay = hourlyRate * recordedHours;
+    const overtimeMultiplier = Number(el.overtimeMultiplier.value);
+    const belowTimeMultiplier = Number(el.belowTimeMultiplier.value);
+
+    let totalPay;
+    if (recordedHours >= expectedHours) {
+      const overtimeHours = recordedHours - expectedHours;
+      totalPay = hourlyRate * expectedHours + hourlyRate * overtimeHours * overtimeMultiplier;
+    } else {
+      totalPay = hourlyRate * recordedHours * belowTimeMultiplier;
+    }
 
     return {
       salary, currency, recordedRaw, recordedHours,
-      hoursPerDay, hoursPerWeek, expectedHours, hourlyRate, totalPay
+      hoursPerDay, hoursPerWeek, expectedHours, hourlyRate,
+      overtimeMultiplier, belowTimeMultiplier, totalPay
     };
   }
 
@@ -313,6 +343,8 @@ export function initPayslipCalculator({ getSettings, updateSettings }) {
       hoursPerWeek: r.hoursPerWeek,
       expectedHours: r.expectedHours,
       hourlyRate: r.hourlyRate,
+      overtimeMultiplier: r.overtimeMultiplier,
+      belowTimeMultiplier: r.belowTimeMultiplier,
       totalPay: r.totalPay,
       timestamp: new Date().toISOString()
     });
@@ -360,6 +392,14 @@ export function initPayslipCalculator({ getSettings, updateSettings }) {
       hoursPerWeek: hpw
     });
     el.recordedHours.value = item.recordedInput;
+    if (typeof item.overtimeMultiplier === 'number') {
+      el.overtimeMultiplier.value = item.overtimeMultiplier;
+      syncMultiplierUI(el.overtimeMultiplier, el.overtimeMultiplierValue);
+    }
+    if (typeof item.belowTimeMultiplier === 'number') {
+      el.belowTimeMultiplier.value = item.belowTimeMultiplier;
+      syncMultiplierUI(el.belowTimeMultiplier, el.belowTimeMultiplierValue);
+    }
 
     displayResult({
       hourlyRate: item.hourlyRate,

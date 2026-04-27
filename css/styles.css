@@ -490,6 +490,59 @@ button.secondary:hover {
   color: var(--text);
 }
 
+/* Multiplier slider */
+.multiplier-value {
+  float: right;
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.multiplier-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  outline: none;
+  padding: 0;
+  margin: 6px 0 2px;
+  background-image: linear-gradient(90deg, var(--primary) 0%, var(--primary) var(--fill, 33.33%), var(--bg) var(--fill, 33.33%), var(--bg) 100%);
+}
+
+.multiplier-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--primary);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.multiplier-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.multiplier-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--primary);
+  cursor: pointer;
+}
+
+.multiplier-slider:focus {
+  border-color: var(--primary);
+}
+
 .settings-card {
   max-width: 640px;
   margin: 0 auto;
