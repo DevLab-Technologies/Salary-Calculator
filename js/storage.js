@@ -5,10 +5,14 @@ export const STORAGE_KEYS = Object.freeze({
   HOURS_HISTORY: 'workCalc.hoursHistory',
   COST_HISTORY: 'workCalc.costHistory',
   PAYSLIP_HISTORY: 'workCalc.payslipHistory',
+  CALC_HISTORY: 'workCalc.calcHistory',
+  LAST_INPUTS: 'workCalc.lastInputs',
   CUSTOMERS: 'workCalc.customers',
   LAST_CUSTOMER_ID: 'workCalc.lastCustomerId',
   LEGACY_INVOICE_CUSTOMER: 'workCalc.invoiceCustomer'
 });
+
+export const DEFAULT_INVOICE_DESCRIPTION = 'Professional Services Rendered';
 
 export const DEFAULT_SETTINGS = Object.freeze({
   weekendDays: [5, 6],
@@ -16,9 +20,12 @@ export const DEFAULT_SETTINGS = Object.freeze({
   hoursPerWeek: 40,
   monthlySalary: 0,
   currency: 'USD',
+  overtimeMultiplier: 1,
+  belowTimeMultiplier: 1,
   employeeName: '',
   employeeAddress: '',
-  bankDetails: ''
+  bankDetails: '',
+  invoiceDescription: DEFAULT_INVOICE_DESCRIPTION
 });
 
 export const HISTORY_LIMIT = 50;

@@ -315,6 +315,86 @@ button.secondary:hover {
 .result-row .label {
   color: var(--text-muted);
   font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Info tooltip icon — pure CSS hover/focus, JS toggle for tap */
+.info-tip {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: inherit;
+  line-height: 1;
+  cursor: help;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.info-tip::before {
+  content: "i";
+  font-style: italic;
+}
+
+.info-tip:hover,
+.info-tip:focus,
+.info-tip.open {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.08);
+  outline: none;
+}
+
+.info-tip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 260px;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.45;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+.info-tip:hover::after,
+.info-tip:focus::after,
+.info-tip.open::after {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .info-tip::after {
+    max-width: 220px;
+    left: auto;
+    right: 0;
+    transform: none;
+  }
 }
 
 .result-row .value {
@@ -450,19 +530,40 @@ button.secondary:hover {
   font-size: 0.8rem;
 }
 
-.history-item .delete {
+.history-item .history-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.history-item .icon-btn {
   background: transparent;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px 8px;
-  font-size: 1rem;
-  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  border-radius: 6px;
+  padding: 0;
+  transition: color 0.15s, background 0.15s;
 }
 
-.history-item .delete:hover {
+.history-item .icon-btn svg { display: block; }
+
+.history-item .icon-btn.share:hover {
+  color: var(--primary);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.history-item .icon-btn.delete:hover {
   color: var(--danger);
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.12);
 }
 
 /* ============================================================
@@ -541,6 +642,148 @@ button.secondary:hover {
 
 .multiplier-slider:focus {
   border-color: var(--primary);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 9999;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Site footer — two-card layout */
+.site-footer {
+  max-width: 1100px;
+  margin: 48px auto 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.footer-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.footer-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  opacity: 0.7;
+}
+
+.footer-card:hover {
+  border-color: var(--primary);
+}
+
+.footer-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.footer-eyebrow {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.footer-name {
+  font-size: 1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 0.01em;
+}
+
+.footer-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.footer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.footer-pill:hover {
+  color: var(--text);
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.08);
+  transform: translateY(-1px);
+}
+
+.footer-pill svg { flex-shrink: 0; }
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+
+.pill-dot.accent { background: var(--accent); }
+
+@media (max-width: 720px) {
+  .site-footer {
+    grid-template-columns: 1fr;
+  }
 }
 
 .settings-card {

@@ -11,6 +11,7 @@ import {
 } from './utils.js';
 
 import {
+  DEFAULT_INVOICE_DESCRIPTION,
   STORAGE_KEYS,
   loadJSON,
   readString,
@@ -264,6 +265,7 @@ export function initInvoice({ getSettings, onSettingsChange, computePayslip }) {
     const employeeName = (settings.employeeName || '').trim();
     const employeeAddress = (settings.employeeAddress || '').trim();
     const bankDetails = (settings.bankDetails || '').trim();
+    const lineDescription = (settings.invoiceDescription || '').trim() || DEFAULT_INVOICE_DESCRIPTION;
 
     const periodLabel = (serviceStart && serviceEnd)
       ? `${formatDate(serviceStart)} — ${formatDate(serviceEnd)}`
@@ -315,7 +317,7 @@ export function initInvoice({ getSettings, onSettingsChange, computePayslip }) {
         <tbody>
           <tr>
             <td>
-              Professional Services Rendered
+              ${escapeHtml(lineDescription)}
               <div class="sub">
                 Expected: ${expectedHours.toFixed(2)} h
                 · ${payslip.hoursPerDay} h/day
